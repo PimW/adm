@@ -53,11 +53,16 @@ class Data(object):
 
         return sets
 
+    def five_fold(self, model):
+        sets = self.generate_sets()
+        models = []
+        for sset in sets:
+            models.append(model(self.movies, self.users, sset))
 
 
     def create_matrix(self, movies, users, sset):
-        movie_count = int(movies[-1][0]) + 1
-        user_count = len(users) + 1
+        movie_count = int(self.movies[-1][0]) + 1
+        user_count = len(self.users) + 1
 
         matrix = np.full((user_count, movie_count), 0)
 

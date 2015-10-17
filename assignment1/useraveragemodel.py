@@ -1,44 +1,37 @@
 # -*- coding: utf-8 -*-
 from model import Model
-
+import numpy as np
 
 class UserAverageModel(Model):
-
+    
+    def __init__(self, movies, users, training_matrix):
+        self.movies = movies
+        self.users = users
+        self.training_matrix = training_matrix
+        self.create_model()
+        
     def create_model(self):
-        self.calculate_average_user_ratings()
-
+        # Sum over all ratings for each user
+        rating_sums = np.sum(self.training_matrix, axis=1)
+        
+        # Count of all non-zero ratings for each movie
+        rating_counts = np.sum(self.training_matrix > 0, axis=1)
+        
+        # Get global_average before altering data
+        self.global_average = np.sum(rating_sums) / np.sum(rating_counts)
+        
+        # Prevent division by zero / nan
+        rating_counts[rating_counts == 0] = 1
+        rating_counts[np.isnan(rating_counts)] = 1
+        
+        self.ratings = rating_sums / rating_counts
+    
     def rating(self, user_id, movie_id):
         user_id = int(user_id)
         movie_id = int(movie_id)
-
-        if user_id in self.user_averages:
-            return self.user_averages[user_id]
+        
+        result = self.ratings[user_id]
+        if result > 0:
+            return result
         else:
-            print("No data, returning global average")
             return self.global_average
-
-    def calculate_average_user_ratings(self):
-        self.user_averages = dict()
-
-        user_rating_dict = dict()
-
-        global_sum = 0.0
-        total_ratings = 0
-
-        for sset in self.training_set:
-            for rating in sset:
-                global_sum += float(rating[2])
-                total_ratings += 1
-
-                user_id = int(rating[0])
-                u_rating = int(rating[2])
-
-                if user_id in user_rating_dict:
-                    user_rating_dict[user_id].append(u_rating)
-                else:
-                    user_rating_dict[user_id] = [u_rating]
-
-        self.global_average = float(global_sum) / total_ratings
-
-        for user_id in user_rating_dict.keys():
-            self.user_averages[user_id] = float(sum(user_rating_dict[user_id])) / len(user_rating_dict[user_id])

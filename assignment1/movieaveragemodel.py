@@ -4,22 +4,36 @@ import numpy as np
 
 
 class MovieAverageModel(Model):
-
+    
     def __init__(self, movies, users, training_matrix):
         self.movies = movies
         self.users = users
         self.training_matrix = training_matrix
         self.create_model()
-
+        
     def create_model(self):
-        return
-
+        # Sum over all ratings for each movie
+        rating_sums = np.sum(self.training_matrix, axis=0)
+        
+        # Count of all non-zero ratings for each movie
+        rating_counts = np.sum(self.training_matrix > 0, axis=0)
+        
+        # Get global_average before altering data
+        self.global_average = np.sum(rating_sums) / np.sum(rating_counts)
+        print("Global Average: " + str(self.global_average))
+        
+        # Prevent division by zero / nan
+        rating_counts[rating_counts == 0] = 1
+        rating_counts[np.isnan(rating_counts)] = 1
+        
+        self.ratings = rating_sums / rating_counts
+    
     def rating(self, user_id, movie_id):
         user_id = int(user_id)
         movie_id = int(movie_id)
-
-        rating_sum = np.sum(self.training_matrix[movie_id])
-
-        number_of_ratings = np.count_nonzero(self.training_matrix[movie_id])
-
-        return float(rating_sum) / number_of_ratings
+        
+        result = self.ratings[movie_id]
+        if result > 0:
+            return result
+        else:
+            return self.global_average
