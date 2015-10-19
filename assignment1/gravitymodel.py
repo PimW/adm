@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from model import Model
 import numpy as np
+import random
 
 
 class GravityModel(Model):
@@ -9,25 +10,41 @@ class GravityModel(Model):
 
         self.num_iterations = num_iterations
         self.X = data.create_matrix()  # actual matrix
-        self.U = self.create_user_matrix()  # matrix U of size (i,K)
-        self.M = self.create_movie_matrix()  # matrix M of size (K,j)
+        self.U = self.create_user_matrix(users)  # matrix U of size (i,K)
+        self.M = self.create_movie_matrix(movies)  # matrix M of size (K,j)
+
+        #TODO: change values
         self.K = 0  # amount of features to consider
         self.rate = 0  # learning rate
         self.reg = 0  # regularisation factor
 
-    def create_user_matrix(self):
+    def create_user_matrix(self, users):
         """
         Create a matrix of size i*K where each row contains the features for each user
+        Weights are initialised randomly
         :return: Matrix (i,K) containing initialised features
         """
-        return np.full()
+        U = np.empty(len(users), self.K)
+        for i in range(0, len(users)):
+            row = []
+            for k in range(0, self.K):
+                row.append(random.random())
+            np.append(U, row, axis=0)
+        return U
 
-    def create_movie_matrix(self):
+    def create_movie_matrix(self, movies):
         """
         Create a matrix of size K*j where each column contains the features for each movie
+        Weights are initialised randomly
         :return: Matrix (K,j) containing initialised features
         """
-        return np.full()
+        M = np.empty(self.K, len(movies))
+        for i in range(0, len(movies)):
+            row = []
+            for k in range(0, self.K):
+                row.append(random.random())
+            np.append(M, row, axis=0)
+        return M
 
     def train_model(self):
         """
@@ -38,13 +55,21 @@ class GravityModel(Model):
         after each iteration compute the RMSE on the probe subset
         """
         values = []
-        for it in range(0, self.num_iterations):
+        for it in range(0, self.num_iterations):  #TODO: change to until no change in RMSE
             print("Finished iteration %d/%d" % (it, self.num_iterations))
-            for val in values:
-                self.update()
+            for val in np.nonzero(self.X):
+                for k in range(0, self.K):
+                    self.update(val[0], val[1], k)
 
-    def update(self):
-        pass
+    def update(self, i, j, k):
+        error_ij = self.training_error(i, j)
+        ik = self.U.item(i, k)
+        kj = self.M.item(k, j)
+
+        new_ik = ik + self.rate * (2 * error_ij * kj - self.reg * ik)
+        new_kj = kj + self.rate * (2 * error_ij * ik - self.reg * kj)
+        self.U[i, k] = new_ik
+        self.M[j, k] = new_kj
 
     def predict_rating(self, i, j):
         """
@@ -53,7 +78,7 @@ class GravityModel(Model):
         """
         estimate = 0
         for k in range(0, self.K):
-            estimate += (self.U[i][k] * self.M[k][j])  # TODO: change this to use proper numpy matrix calls
+            estimate += (self.U.item(i, k) * self.M.item(k, j))  # TODO: change this to use proper numpy matrix calls
         return estimate
 
     def training_error(self, i, j):
@@ -61,5 +86,5 @@ class GravityModel(Model):
         Calculate the error of the predicted rating using the actual rating matrix and the prediction
         :return: Error of the predicted rating
         """
-        error = self.X[i][j] - self.predict_rating(i, j) # TODO: change this to use proper numpy matrix calls
+        error = self.X.item(i, j) - self.predict_rating(i, j)  # TODO: change this to use proper numpy matrix calls
         return error
