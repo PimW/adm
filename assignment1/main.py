@@ -6,11 +6,12 @@ import numpy as np
 from globalaveragemodel import GlobalAverageModel
 from movieaveragemodel import MovieAverageModel
 from useraveragemodel import UserAverageModel
+from gravitymodel import GravityModel
 
 from evaluate import check_error_MAE, check_error_RMSE
 from data import Data
 
-data_path = '/home/pimw/PycharmProjects/datamining/dmdata/'
+data_path = '/home/pimw/PycharmProjects/adm/assignment1/dmdata/'
 
 # Create a data object holding all information
 data = Data(data_path)
@@ -73,22 +74,32 @@ models = []
 for sset in sets:
     models.append(GlobalAverageModel(data.movies, data.users, sset))
 
-check_models(models)
+#check_models(models)
 
 
 models = []
 # User average model
-for sset in sets:
-    models.append(UserAverageModel(data.movies, data.users, sset))
+#for sset in sets:
+#    models.append(UserAverageModel(data.movies, data.users, sset))
 
-check_models(models)
+#check_models(models)
 
 models = []
 # Movie average model
 for sset in sets:
     matrix = create_matrix(data.movies, data.users, sset)
-    models.append(MovieAverageModel(data.movies, data.users, matrix))
+#    models.append(MovieAverageModel(data.movies, data.users, matrix))
     
+#check_models(models)
+
+
+models = []
+# Movie average model
+for sset in sets:
+    matrix = create_matrix(data.movies, data.users, sset)
+    models.append(GravityModel(None, data.movies, data.users, matrix))
+
+print("Checking gravitymodel")    
 check_models(models)
 
 matrix = create_matrix(data.movies, data.users, sets[0])

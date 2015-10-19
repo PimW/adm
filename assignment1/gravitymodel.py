@@ -5,18 +5,19 @@ import random
 
 
 class GravityModel(Model):
-    def __init__(self, data, movies, users, training_set, num_iterations=100):
+    def __init__(self, data, movies, users, training_set, num_iterations=75):
         super().__init__(movies, users, training_set)
 
+        #TODO: change values
+        self.K = 10  # amount of features to consider
+        self.rate = 0.005  # learning rate
+        self.reg = 0.05  # regularisation factor
+
         self.num_iterations = num_iterations
-        self.X = data.create_matrix()  # actual matrix
+        self.X = training_set # data.create_matrix()  # actual matrix
         self.U = self.create_user_matrix(users)  # matrix U of size (i,K)
         self.M = self.create_movie_matrix(movies)  # matrix M of size (K,j)
-
-        #TODO: change values
-        self.K = 0  # amount of features to consider
-        self.rate = 0  # learning rate
-        self.reg = 0  # regularisation factor
+        self.train_model()
 
     def create_user_matrix(self, users):
         """
@@ -24,12 +25,10 @@ class GravityModel(Model):
         Weights are initialised randomly
         :return: Matrix (i,K) containing initialised features
         """
-        U = np.empty(len(users), self.K)
+        U = np.empty([len(users), self.K])
         for i in range(0, len(users)):
-            row = []
             for k in range(0, self.K):
-                row.append(random.random())
-            np.append(U, row, axis=0)
+                U[i,k] = random.random()
         return U
 
     def create_movie_matrix(self, movies):
@@ -38,12 +37,10 @@ class GravityModel(Model):
         Weights are initialised randomly
         :return: Matrix (K,j) containing initialised features
         """
-        M = np.empty(self.K, len(movies))
-        for i in range(0, len(movies)):
-            row = []
-            for k in range(0, self.K):
-                row.append(random.random())
-            np.append(M, row, axis=0)
+        M = np.empty([self.K, len(movies)])
+        for k in range(0, self.K):
+            for j in range(0, len(movies)):
+                M[k,j] = random.random()
         return M
 
     def train_model(self):
@@ -56,7 +53,7 @@ class GravityModel(Model):
         """
         values = []
         for it in range(0, self.num_iterations):  #TODO: change to until no change in RMSE
-            print("Finished iteration %d/%d" % (it, self.num_iterations))
+            print("Iteration: %d/%d" % (it, self.num_iterations))
             for val in np.nonzero(self.X):
                 for k in range(0, self.K):
                     self.update(val[0], val[1], k)
@@ -69,16 +66,19 @@ class GravityModel(Model):
         new_ik = ik + self.rate * (2 * error_ij * kj - self.reg * ik)
         new_kj = kj + self.rate * (2 * error_ij * ik - self.reg * kj)
         self.U[i, k] = new_ik
-        self.M[j, k] = new_kj
+        self.M[k, j] = new_kj
 
-    def predict_rating(self, i, j):
+    def rating(self, i, j):
         """
         Calculate the predicted rating using the U and M matrices using formula 3 pg. 24
         :return: Estimated rating
         """
         estimate = 0
         for k in range(0, self.K):
-            estimate += (self.U.item(i, k) * self.M.item(k, j))  # TODO: change this to use proper numpy matrix calls
+            try:
+                estimate += (self.U.item(i, k) * self.M.item(k, j))
+            except:
+                print("i: %d, k: %d, j: %d" %(i, k, j))
         return estimate
 
     def training_error(self, i, j):
@@ -86,5 +86,5 @@ class GravityModel(Model):
         Calculate the error of the predicted rating using the actual rating matrix and the prediction
         :return: Error of the predicted rating
         """
-        error = self.X.item(i, j) - self.predict_rating(i, j)  # TODO: change this to use proper numpy matrix calls
+        error = self.X.item(i, j) - self.rating(i, j)
         return error
