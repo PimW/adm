@@ -64,7 +64,7 @@ class Data(object):
         movie_count = int(self.movies[-1][0]) + 1
         user_count = len(self.users) + 1
 
-        matrix = np.full((user_count, movie_count), 0)
+        matrix = np.sparse((user_count, movie_count), 0)
 
         for split in sset:
             for rating in split:

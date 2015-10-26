@@ -2,6 +2,7 @@
 
 import random
 import numpy as np
+import math
 
 from globalaveragemodel import GlobalAverageModel
 from movieaveragemodel import MovieAverageModel
@@ -21,16 +22,11 @@ data = Data(data_path)
 
 # Similarity measures
 def cosine_similarity(vector1,vector2):
-    sum_xx, sum_xy, sum_yy = 0, 0, 0
-    for i in range(len(vector1)):
-        x = vector1[i]
-        y = vector2[i]
-        
-        sum_xx += x*x
-        sum_yy += y*y
-        sum_xy += x*y
-    return sum_xy/math.sqrt(sum_xx*sum_yy)
+    dot = np.dot(vector1, vector2)
 
+    N = np.sum(np.power(vector1, 2))
+    norm = math.sqrt(np.dot(N, N))
+    return dot/norm
 
 def pearson_correlation(vector1, vector2):
    # Normalise
@@ -103,6 +99,8 @@ def check_models(models):
 
 # In[784]:
 
+# Switch
+#"""
 # Global average model
 models = []
 for sset in sets:
@@ -164,4 +162,4 @@ for rating in data.ratings:
 print(float(x) / total)
 
 
-
+#"""

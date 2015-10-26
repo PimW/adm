@@ -54,9 +54,10 @@ class GravityModel(Model):
         values = []
         for it in range(0, self.num_iterations):  #TODO: change to until no change in RMSE
             print("Iteration: %d/%d" % (it, self.num_iterations))
-            for val in np.nonzero(self.X):
+            val_arrays = np.nonzero(self.X)
+            for value_idx in range(len(val_arrays[0])):
                 for k in range(0, self.K):
-                    self.update(val[0], val[1], k)
+                    self.update(val_arrays[0][value_idx], val_arrays[1][value_idx], k)
 
     def update(self, i, j, k):
         error_ij = self.training_error(i, j)
