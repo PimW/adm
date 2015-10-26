@@ -21,19 +21,19 @@ class Data(object):
     def read_ratings(self):
         f = open(self.data_path + self.ratings_filename, 'r', encoding=self.encoding, errors='replace')
         text = f.read()
-        ratings = re.findall('(\d+)::(\d+)::(\d+)::(\d+)', text)
+        ratings = re.findall('(\d+?)::(\d+?)::(\d+?)::(\d+)', text)
         return ratings
 
     def read_movies(self):
         f = open(self.data_path + self.movies_filename, 'r', encoding=self.encoding, errors='replace')
         text = f.read()
-        ratings = re.findall('(\d+)::(.+)::(.+)', text)
+        ratings = re.findall('(\d+?)::(.+?)::(.+)', text)
         return ratings
 
     def read_users(self):
         f = open(self.data_path + self.users_filename, 'r', encoding=self.encoding, errors='replace')
         text = f.read()
-        users = re.findall('(\d+)::(.+)::(.+)::(.+)::(.+)', text)
+        users = re.findall('(\d+?)::(.+?)::(.+?)::(.+?)::(.+)', text)
         return users
 
     def split_ratings(self, ratings):

@@ -15,31 +15,31 @@ class GravityModel(Model):
 
         self.num_iterations = num_iterations
         self.X = training_set # data.create_matrix()  # actual matrix
-        self.U = self.create_user_matrix(users)  # matrix U of size (i,K)
-        self.M = self.create_movie_matrix(movies)  # matrix M of size (K,j)
+        self.U = self.create_user_matrix(data)  # matrix U of size (i,K)
+        self.M = self.create_movie_matrix(data)  # matrix M of size (K,j)
         self.train_model()
 
-    def create_user_matrix(self, users):
+    def create_user_matrix(self, data):
         """
         Create a matrix of size i*K where each row contains the features for each user
         Weights are initialised randomly
         :return: Matrix (i,K) containing initialised features
         """
-        U = np.empty([len(users), self.K])
-        for i in range(0, len(users)):
+        U = np.empty([len(data.users), self.K])
+        for i in range(0, len(data.users)):
             for k in range(0, self.K):
                 U[i,k] = random.random()
         return U
 
-    def create_movie_matrix(self, movies):
+    def create_movie_matrix(self, data):
         """
         Create a matrix of size K*j where each column contains the features for each movie
         Weights are initialised randomly
         :return: Matrix (K,j) containing initialised features
         """
-        M = np.empty([self.K, len(movies)])
+        M = np.empty([self.K, len(data.movies)])
         for k in range(0, self.K):
-            for j in range(0, len(movies)):
+            for j in range(0, len(data.movies)):
                 M[k,j] = random.random()
         return M
 

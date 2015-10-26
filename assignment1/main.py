@@ -13,8 +13,42 @@ from data import Data
 
 data_path = '/home/pimw/PycharmProjects/adm/assignment1/dmdata/'
 
+random.seed(42)
+
 # Create a data object holding all information
 data = Data(data_path)
+
+
+# Similarity measures
+def cosine_similarity(vector1,vector2):
+    sum_xx, sum_xy, sum_yy = 0, 0, 0
+    for i in range(len(vector1)):
+        x = vector1[i]
+        y = vector2[i]
+        
+        sum_xx += x*x
+        sum_yy += y*y
+        sum_xy += x*y
+    return sum_xy/math.sqrt(sum_xx*sum_yy)
+
+
+def pearson_correlation(vector1, vector2):
+   # Normalise
+   vector1 -= vector1.mean(0)
+   vector2 -= vector2.mean(0)
+   # Standardise
+   vector1 /= vector1.std(0)
+   vector2 /= vector2.std(0)
+
+   return np.mean(vector1*vector2)
+
+def adjusted_cosine(vector1, vector2):
+   # Normalise
+   vector1 -= vector1.mean(0)
+   vector2 -= vector2.mean(0)
+
+   return cosine_similarity(vector1, vector2)
+
 
 
 def split_ratings(ratings):
@@ -97,7 +131,7 @@ models = []
 # Movie average model
 for sset in sets:
     matrix = create_matrix(data.movies, data.users, sset)
-    models.append(GravityModel(None, data.movies, data.users, matrix))
+    models.append(GravityModel(data, data.movies, data.users, matrix))
 
 print("Checking gravitymodel")    
 check_models(models)
